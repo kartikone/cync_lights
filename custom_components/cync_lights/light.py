@@ -12,9 +12,9 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback
 ) -> None:
     hub = hass.data[DOMAIN][config_entry.entry_id]
 
@@ -42,7 +42,7 @@ class CyncRoomEntity(LightEntity):
 
     async def async_added_to_hass(self) -> None:
         """Run when this Entity has been added to HA."""
-        self.room.register(self.async_write_ha_state)
+        self.room.register(self.schedule_update_ha_state)
 
     async def async_will_remove_from_hass(self) -> None:
         """Entity being removed from hass."""
@@ -157,7 +157,7 @@ class CyncSwitchEntity(LightEntity):
 
     async def async_added_to_hass(self) -> None:
         """Run when this Entity has been added to HA."""
-        self.cync_switch.register(self.async_write_ha_state)
+        self.cync_switch.register(self.schedule_update_ha_state)
 
     async def async_will_remove_from_hass(self) -> None:
         """Entity being removed from hass."""

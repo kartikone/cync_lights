@@ -12,9 +12,9 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback
 ) -> None:
     hub = hass.data[DOMAIN][config_entry.entry_id]
 
@@ -37,7 +37,7 @@ class CyncPlugEntity(SwitchEntity):
 
     async def async_added_to_hass(self) -> None:
         """Run when this Entity has been added to HA."""
-        self.cync_switch.register(self.async_write_ha_state)
+        self.cync_switch.register(self.schedule_update_ha_state)
 
     async def async_will_remove_from_hass(self) -> None:
         """Entity being removed from hass."""
@@ -56,7 +56,7 @@ class CyncPlugEntity(SwitchEntity):
     @property
     def unique_id(self) -> str:
         """Return Unique ID string."""
-        return 'cync_switch_' + self.cync_switch.device_id 
+        return 'cync_switch_' + self.cync_switch.device_id
 
     @property
     def name(self) -> str:
@@ -72,7 +72,7 @@ class CyncPlugEntity(SwitchEntity):
     def is_on(self) -> bool | None:
         """Return true if light is on."""
         return self.cync_switch.power_state
-            
+
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on the outlet."""
         await self.cync_switch.turn_on(None, None, None)

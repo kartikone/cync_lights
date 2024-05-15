@@ -9,9 +9,9 @@ from homeassistant.helpers.entity import DeviceInfo
 from .const import DOMAIN
 
 async def async_setup_entry(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback
 ) -> None:
     hub = hass.data[DOMAIN][config_entry.entry_id]
 
@@ -38,7 +38,7 @@ class CyncMotionSensorEntity(BinarySensorEntity):
 
     async def async_added_to_hass(self) -> None:
         """Run when this Entity has been added to HA."""
-        self.motion_sensor.register(self.async_write_ha_state)
+        self.motion_sensor.register(self.schedule_update_ha_state)
 
     async def async_will_remove_from_hass(self) -> None:
         """Entity being removed from hass."""
@@ -85,7 +85,7 @@ class CyncAmbientLightSensorEntity(BinarySensorEntity):
 
     async def async_added_to_hass(self) -> None:
         """Run when this Entity has been added to HA."""
-        self.ambient_light_sensor.register(self.async_write_ha_state)
+        self.ambient_light_sensor.register(self.schedule_update_ha_state)
 
     async def async_will_remove_from_hass(self) -> None:
         """Entity being removed from hass."""
