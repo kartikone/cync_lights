@@ -1,15 +1,19 @@
 """Platform for light integration."""
 from __future__ import annotations
+
+import logging
 from typing import Any
+
 from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
 from .const import DOMAIN
-import logging
 
 _LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_entry(
         hass: HomeAssistant,
@@ -20,11 +24,13 @@ async def async_setup_entry(
 
     new_devices = []
     for switch_id in hub.cync_switches:
-        if not hub.cync_switches[switch_id]._update_callback and hub.cync_switches[switch_id].plug and switch_id in config_entry.options["switches"]:
+        if not hub.cync_switches[switch_id]._update_callback and hub.cync_switches[switch_id].plug and switch_id in \
+                config_entry.options["switches"]:
             new_devices.append(CyncPlugEntity(hub.cync_switches[switch_id]))
 
     if new_devices:
         async_add_entities(new_devices)
+
 
 class CyncPlugEntity(SwitchEntity):
     """Representation of a Cync Switch Light Entity."""
@@ -47,10 +53,10 @@ class CyncPlugEntity(SwitchEntity):
     def device_info(self) -> DeviceInfo:
         """Return device registry information for this entity."""
         return DeviceInfo(
-            identifiers = {(DOMAIN, f"{self.cync_switch.room.name} ({self.cync_switch.home_name})")},
-            manufacturer = "Cync by Savant",
-            name = f"{self.cync_switch.room.name} ({self.cync_switch.home_name})",
-            suggested_area = f"{self.cync_switch.room.name}",
+            identifiers={(DOMAIN, f"{self.cync_switch.room.name} ({self.cync_switch.home_name})")},
+            manufacturer="Cync by Savant",
+            name=f"{self.cync_switch.room.name} ({self.cync_switch.home_name})",
+            suggested_area=f"{self.cync_switch.room.name}",
         )
 
     @property
