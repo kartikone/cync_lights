@@ -1,13 +1,13 @@
 {
   "domain": "cync_lights",
   "name": "Cync Lights",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "config_flow": true,
   "documentation": "https://github.com/kartikone/cync_lights",
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
-  "dependencies": [],
+  "dependencies": {},
   "codeowners": [
     "@kartikone",
     "@nikshriv"
