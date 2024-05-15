@@ -1,11 +1,12 @@
-import logging
-import threading
 import asyncio
-import struct
-import aiohttp
+import logging
 import math
 import ssl
+import struct
+import threading
 from typing import Any
+
+import aiohttp
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -436,10 +437,10 @@ class CyncHub:
             for controller in home_controllers:
                 seq = self.get_seq_num()
                 state_request = (
-                    bytes.fromhex("7300000018")
-                    + int(controller).to_bytes(4, "big")
-                    + seq.to_bytes(2, "big")
-                    + bytes.fromhex("007e00000000f85206000000ffff0000567e")
+                        bytes.fromhex("7300000018")
+                        + int(controller).to_bytes(4, "big")
+                        + seq.to_bytes(2, "big")
+                        + bytes.fromhex("007e00000000f85206000000ffff0000567e")
                 )
                 self.loop.call_soon_threadsafe(self.send_request, state_request)
 
@@ -529,7 +530,7 @@ class CyncHub:
                 _LOGGER.debug(
                     "Examining packet type %d length %d", packet_type, packet_length
                 )
-                packet = data[5 : packet_length + 5]
+                packet = data[5: packet_length + 5]
                 try:
                     if packet_length != len(packet):
                         _LOGGER.warning(
@@ -551,10 +552,10 @@ class CyncHub:
                             # send response packet
                             response_id = struct.unpack(">H", packet[4:6])[0]
                             response_packet = (
-                                bytes.fromhex("7300000007")
-                                + int(switch_id).to_bytes(4, "big")
-                                + response_id.to_bytes(2, "big")
-                                + bytes.fromhex("00")
+                                    bytes.fromhex("7300000007")
+                                    + int(switch_id).to_bytes(4, "big")
+                                    + response_id.to_bytes(2, "big")
+                                    + bytes.fromhex("00")
                             )
                             self.loop.call_soon_threadsafe(
                                 self.send_request, response_packet
@@ -605,17 +606,17 @@ class CyncHub:
                                     if deviceID in self.cync_switches:
                                         if self.cync_switches[deviceID].elements > 1:
                                             for i in range(
-                                                self.cync_switches[deviceID].elements
+                                                    self.cync_switches[deviceID].elements
                                             ):
                                                 device_id = self.home_devices[home_id][
                                                     (i + 1) * 256 + int(packet[0])
-                                                ]
+                                                    ]
                                                 state = (
-                                                    int(
-                                                        (int(packet[12]) >> i)
-                                                        & int(packet[8])
-                                                    )
-                                                    > 0
+                                                        int(
+                                                            (int(packet[12]) >> i)
+                                                            & int(packet[8])
+                                                        )
+                                                        > 0
                                                 )
                                                 brightness = 100 if state else 0
                                                 self.cync_switches[
@@ -671,11 +672,11 @@ class CyncHub:
                                         deviceID
                                     ].update_ambient_light_sensor(ambient_light)
                         elif (
-                            packet_type == 67
-                            and packet_length >= 26
-                            and int(packet[4]) == 1
-                            and int(packet[5]) == 1
-                            and int(packet[6]) == 6
+                                packet_type == 67
+                                and packet_length >= 26
+                                and int(packet[4]) == 1
+                                and int(packet[5]) == 1
+                                and int(packet[6]) == 6
                         ):
                             # parse state packet
                             switch_id = str(struct.unpack(">I", packet[0:4])[0])
@@ -689,17 +690,17 @@ class CyncHub:
                                     if deviceID in self.cync_switches:
                                         if self.cync_switches[deviceID].elements > 1:
                                             for i in range(
-                                                self.cync_switches[deviceID].elements
+                                                    self.cync_switches[deviceID].elements
                                             ):
                                                 device_id = self.home_devices[home_id][
                                                     (i + 1) * 256 + int(packet[3])
-                                                ]
+                                                    ]
                                                 state = (
-                                                    int(
-                                                        (int(packet[5]) >> i)
-                                                        & int(packet[4])
-                                                    )
-                                                    > 0
+                                                        int(
+                                                            (int(packet[5]) >> i)
+                                                            & int(packet[4])
+                                                        )
+                                                        > 0
                                                 )
                                                 brightness = 100 if state else 0
                                                 self.cync_switches[
@@ -739,7 +740,7 @@ class CyncHub:
                             _LOGGER.info("Ignoring packet of type %d", packet_type)
                 except Exception as e:
                     _LOGGER.error("Failsafe during packet", exc_info=e)
-                data = data[packet_length + 5 :]
+                data = data[packet_length + 5:]
         raise ShuttingDown
 
     async def _maintain_connection(self):
@@ -770,21 +771,21 @@ class CyncHub:
                 await asyncio.sleep(2)
             attempts = 0
             while (
-                True
-                in [
-                    len(devices) < len(self.home_controllers[home_id]) * 0.5
-                    for home_id, devices in self.connected_devices.items()
-                ]
-                and attempts < 10
+                    True
+                    in [
+                        len(devices) < len(self.home_controllers[home_id]) * 0.5
+                        for home_id, devices in self.connected_devices.items()
+                    ]
+                    and attempts < 10
             ):
                 for home_id, home_controllers in self.home_controllers.items():
                     for controller in home_controllers:
                         seq = self.get_seq_num()
                         ping = (
-                            bytes.fromhex("a300000007")
-                            + int(controller).to_bytes(4, "big")
-                            + seq.to_bytes(2, "big")
-                            + bytes.fromhex("00")
+                                bytes.fromhex("a300000007")
+                                + int(controller).to_bytes(4, "big")
+                                + seq.to_bytes(2, "big")
+                                + bytes.fromhex("00")
                         )
                         self.loop.call_soon_threadsafe(self.send_request, ping)
                         await asyncio.sleep(0.15)
@@ -806,10 +807,10 @@ class CyncHub:
                 controller = self.cync_switches[connected_devices[0]].switch_id
                 seq = self.get_seq_num()
                 state_request = (
-                    bytes.fromhex("7300000018")
-                    + int(controller).to_bytes(4, "big")
-                    + seq.to_bytes(2, "big")
-                    + bytes.fromhex("007e00000000f85206000000ffff0000567e")
+                        bytes.fromhex("7300000018")
+                        + int(controller).to_bytes(4, "big")
+                        + seq.to_bytes(2, "big")
+                        + bytes.fromhex("007e00000000f85206000000ffff0000567e")
                 )
                 self.loop.call_soon_threadsafe(self.send_request, state_request)
         while False in [
@@ -833,76 +834,76 @@ class CyncHub:
         self.loop.create_task(send())
 
     def combo_control(
-        self, state, brightness, color_tone, rgb, switch_id, mesh_id, seq
+            self, state, brightness, color_tone, rgb, switch_id, mesh_id, seq
     ):
         combo_request = (
-            bytes.fromhex("7300000022")
-            + int(switch_id).to_bytes(4, "big")
-            + int(seq).to_bytes(2, "big")
-            + bytes.fromhex("007e00000000f8f010000000000000")
-            + mesh_id
-            + bytes.fromhex("f00000")
-            + (1 if state else 0).to_bytes(1, "big")
-            + brightness.to_bytes(1, "big")
-            + color_tone.to_bytes(1, "big")
-            + rgb[0].to_bytes(1, "big")
-            + rgb[1].to_bytes(1, "big")
-            + rgb[2].to_bytes(1, "big")
-            + (
-                (
-                    496
-                    + int(mesh_id[0])
-                    + int(mesh_id[1])
-                    + (1 if state else 0)
-                    + brightness
-                    + color_tone
-                    + sum(rgb)
-                )
-                % 256
-            ).to_bytes(1, "big")
-            + bytes.fromhex("7e")
+                bytes.fromhex("7300000022")
+                + int(switch_id).to_bytes(4, "big")
+                + int(seq).to_bytes(2, "big")
+                + bytes.fromhex("007e00000000f8f010000000000000")
+                + mesh_id
+                + bytes.fromhex("f00000")
+                + (1 if state else 0).to_bytes(1, "big")
+                + brightness.to_bytes(1, "big")
+                + color_tone.to_bytes(1, "big")
+                + rgb[0].to_bytes(1, "big")
+                + rgb[1].to_bytes(1, "big")
+                + rgb[2].to_bytes(1, "big")
+                + (
+                        (
+                                496
+                                + int(mesh_id[0])
+                                + int(mesh_id[1])
+                                + (1 if state else 0)
+                                + brightness
+                                + color_tone
+                                + sum(rgb)
+                        )
+                        % 256
+                ).to_bytes(1, "big")
+                + bytes.fromhex("7e")
         )
         self.loop.call_soon_threadsafe(self.send_request, combo_request)
 
     def turn_on(self, switch_id, mesh_id, seq):
         power_request = (
-            bytes.fromhex("730000001f")
-            + int(switch_id).to_bytes(4, "big")
-            + int(seq).to_bytes(2, "big")
-            + bytes.fromhex("007e00000000f8d00d000000000000")
-            + mesh_id
-            + bytes.fromhex("d00000010000")
-            + ((430 + int(mesh_id[0]) + int(mesh_id[1])) % 256).to_bytes(1, "big")
-            + bytes.fromhex("7e")
+                bytes.fromhex("730000001f")
+                + int(switch_id).to_bytes(4, "big")
+                + int(seq).to_bytes(2, "big")
+                + bytes.fromhex("007e00000000f8d00d000000000000")
+                + mesh_id
+                + bytes.fromhex("d00000010000")
+                + ((430 + int(mesh_id[0]) + int(mesh_id[1])) % 256).to_bytes(1, "big")
+                + bytes.fromhex("7e")
         )
         self.loop.call_soon_threadsafe(self.send_request, power_request)
 
     def turn_off(self, switch_id, mesh_id, seq):
         power_request = (
-            bytes.fromhex("730000001f")
-            + int(switch_id).to_bytes(4, "big")
-            + int(seq).to_bytes(2, "big")
-            + bytes.fromhex("007e00000000f8d00d000000000000")
-            + mesh_id
-            + bytes.fromhex("d00000000000")
-            + ((429 + int(mesh_id[0]) + int(mesh_id[1])) % 256).to_bytes(1, "big")
-            + bytes.fromhex("7e")
+                bytes.fromhex("730000001f")
+                + int(switch_id).to_bytes(4, "big")
+                + int(seq).to_bytes(2, "big")
+                + bytes.fromhex("007e00000000f8d00d000000000000")
+                + mesh_id
+                + bytes.fromhex("d00000000000")
+                + ((429 + int(mesh_id[0]) + int(mesh_id[1])) % 256).to_bytes(1, "big")
+                + bytes.fromhex("7e")
         )
         self.loop.call_soon_threadsafe(self.send_request, power_request)
 
     def set_color_temp(self, color_temp, switch_id, mesh_id, seq):
         color_temp_request = (
-            bytes.fromhex("730000001e")
-            + int(switch_id).to_bytes(4, "big")
-            + int(seq).to_bytes(2, "big")
-            + bytes.fromhex("007e00000000f8e20c000000000000")
-            + mesh_id
-            + bytes.fromhex("e2000005")
-            + color_temp.to_bytes(1, "big")
-            + ((469 + int(mesh_id[0]) + int(mesh_id[1]) + color_temp) % 256).to_bytes(
-                1, "big"
-            )
-            + bytes.fromhex("7e")
+                bytes.fromhex("730000001e")
+                + int(switch_id).to_bytes(4, "big")
+                + int(seq).to_bytes(2, "big")
+                + bytes.fromhex("007e00000000f8e20c000000000000")
+                + mesh_id
+                + bytes.fromhex("e2000005")
+                + color_temp.to_bytes(1, "big")
+                + ((469 + int(mesh_id[0]) + int(mesh_id[1]) + color_temp) % 256).to_bytes(
+            1, "big"
+        )
+                + bytes.fromhex("7e")
         )
         self.loop.call_soon_threadsafe(self.send_request, color_temp_request)
 
@@ -982,20 +983,20 @@ class CyncRoom:
             if self.hub.cync_rooms[room_id].support_rgb
         ]
         self.support_brightness = (
-            len(self.switches_support_brightness) + len(self.groups_support_brightness)
-        ) > 0
+                                          len(self.switches_support_brightness) + len(self.groups_support_brightness)
+                                  ) > 0
         self.support_color_temp = (
-            len(self.switches_support_color_temp) + len(self.groups_support_color_temp)
-        ) > 0
+                                          len(self.switches_support_color_temp) + len(self.groups_support_color_temp)
+                                  ) > 0
         self.support_rgb = (
-            len(self.switches_support_rgb) + len(self.groups_support_rgb)
-        ) > 0
+                                   len(self.switches_support_rgb) + len(self.groups_support_rgb)
+                           ) > 0
         for switch_id in self.switches:
             self.hub.cync_switches[switch_id].register_room_updater(self.update_room)
         for subgroup in self.subgroups:
             self.hub.cync_rooms[subgroup].register_room_updater(self.update_room)
             self.all_room_switches = (
-                self.all_room_switches + self.hub.cync_rooms[subgroup].switches
+                    self.all_room_switches + self.hub.cync_rooms[subgroup].switches
             )
         for subgroup in self.subgroups:
             self.hub.cync_rooms[subgroup].all_room_switches = self.all_room_switches
@@ -1026,7 +1027,7 @@ class CyncRoom:
         attempts = 0
         update_received = False
         while not update_received and attempts < int(
-            self._command_retry_time / self._command_timout
+                self._command_retry_time / self._command_timout
         ):
             seq = str(self.hub.get_seq_num())
             if len(self.controllers) > 0:
@@ -1035,11 +1036,11 @@ class CyncRoom:
                 controller = self.default_controller
             if attr_rgb is not None and attr_br is not None:
                 if math.isclose(
-                    attr_br,
-                    max([self.rgb["r"], self.rgb["g"], self.rgb["b"]])
-                    * self.brightness
-                    / 100,
-                    abs_tol=2,
+                        attr_br,
+                        max([self.rgb["r"], self.rgb["g"], self.rgb["b"]])
+                        * self.brightness
+                        / 100,
+                        abs_tol=2,
                 ):
                     self.hub.combo_control(
                         True,
@@ -1096,7 +1097,7 @@ class CyncRoom:
         attempts = 0
         update_received = False
         while not update_received and attempts < int(
-            self._command_retry_time / self._command_timout
+                self._command_retry_time / self._command_timout
         ):
             seq = str(self.hub.get_seq_num())
             if len(self.controllers) > 0:
@@ -1123,11 +1124,11 @@ class CyncRoom:
         _color_temp = self.color_temp
         _rgb = self.rgb
         _power_state = True in (
-            [
-                self.hub.cync_switches[device_id].power_state
-                for device_id in self.switches
-            ]
-            + [self.hub.cync_rooms[room_id].power_state for room_id in self.subgroups]
+                [
+                    self.hub.cync_switches[device_id].power_state
+                    for device_id in self.switches
+                ]
+                + [self.hub.cync_rooms[room_id].power_state for room_id in self.subgroups]
         )
         if self.support_brightness:
             _brightness = round(
@@ -1158,8 +1159,8 @@ class CyncRoom:
                     ]
                 )
                 / (
-                    len(self.switches_support_color_temp)
-                    + len(self.groups_support_color_temp)
+                        len(self.switches_support_color_temp)
+                        + len(self.groups_support_color_temp)
                 )
             )
         if self.support_rgb:
@@ -1203,21 +1204,21 @@ class CyncRoom:
                 / (len(self.switches_support_rgb) + len(self.groups_support_rgb))
             )
             _rgb["active"] = True in (
-                [
-                    self.hub.cync_switches[device_id].rgb["active"]
-                    for device_id in self.switches_support_rgb
-                ]
-                + [
-                    self.hub.cync_rooms[room_id].rgb["active"]
-                    for room_id in self.groups_support_rgb
-                ]
+                    [
+                        self.hub.cync_switches[device_id].rgb["active"]
+                        for device_id in self.switches_support_rgb
+                    ]
+                    + [
+                        self.hub.cync_rooms[room_id].rgb["active"]
+                        for room_id in self.groups_support_rgb
+                    ]
             )
 
         if (
-            _power_state != self.power_state
-            or _brightness != self.brightness
-            or _color_temp != self.color_temp
-            or _rgb != self.rgb
+                _power_state != self.power_state
+                or _brightness != self.brightness
+                or _color_temp != self.color_temp
+                or _rgb != self.rgb
         ):
             self.power_state = _power_state
             self.brightness = _brightness
@@ -1311,7 +1312,7 @@ class CyncSwitch:
         attempts = 0
         update_received = False
         while not update_received and attempts < int(
-            self._command_retry_time / self._command_timout
+                self._command_retry_time / self._command_timout
         ):
             seq = str(self.hub.get_seq_num())
             if len(self.controllers) > 0:
@@ -1320,11 +1321,11 @@ class CyncSwitch:
                 controller = self.default_controller
             if attr_rgb is not None and attr_br is not None:
                 if math.isclose(
-                    attr_br,
-                    max([self.rgb["r"], self.rgb["g"], self.rgb["b"]])
-                    * self.brightness
-                    / 100,
-                    abs_tol=2,
+                        attr_br,
+                        max([self.rgb["r"], self.rgb["g"], self.rgb["b"]])
+                        * self.brightness
+                        / 100,
+                        abs_tol=2,
                 ):
                     self.hub.combo_control(
                         True,
@@ -1381,7 +1382,7 @@ class CyncSwitch:
         attempts = 0
         update_received = False
         while not update_received and attempts < int(
-            self._command_retry_time / self._command_timout
+                self._command_retry_time / self._command_timout
         ):
             seq = str(self.hub.get_seq_num())
             if len(self.controllers) > 0:
@@ -1406,10 +1407,10 @@ class CyncSwitch:
         """Update the state of the switch as updates are received from the Cync server"""
         self.update_received = True
         if (
-            self.power_state != state
-            or self.brightness != brightness
-            or self.color_temp != color_temp
-            or self.rgb != rgb
+                self.power_state != state
+                or self.brightness != brightness
+                or self.color_temp != color_temp
+                or self.rgb != rgb
         ):
             self.power_state = state
             self.brightness = (
@@ -1525,15 +1526,15 @@ class CyncUserData:
                 if resp.status == 200:
                     self.user_credentials = await resp.json()
                     login_code = (
-                        bytearray.fromhex("13000000")
-                        + (10 + len(self.user_credentials["authorize"])).to_bytes(
-                            1, "big"
-                        )
-                        + bytearray.fromhex("03")
-                        + self.user_credentials["user_id"].to_bytes(4, "big")
-                        + len(self.user_credentials["authorize"]).to_bytes(2, "big")
-                        + bytearray(self.user_credentials["authorize"], "ascii")
-                        + bytearray.fromhex("0000b4")
+                            bytearray.fromhex("13000000")
+                            + (10 + len(self.user_credentials["authorize"])).to_bytes(
+                        1, "big"
+                    )
+                            + bytearray.fromhex("03")
+                            + self.user_credentials["user_id"].to_bytes(4, "big")
+                            + len(self.user_credentials["authorize"]).to_bytes(2, "big")
+                            + bytearray(self.user_credentials["authorize"], "ascii")
+                            + bytearray.fromhex("0000b4")
                     )
                     self.auth_code = [
                         int.from_bytes([byt], "big") for byt in login_code
@@ -1547,7 +1548,7 @@ class CyncUserData:
                     }
                     async with aiohttp.ClientSession() as session:
                         async with session.post(
-                            API_REQUEST_CODE, json=request_code_data
+                                API_REQUEST_CODE, json=request_code_data
                         ) as resp:
                             if resp.status == 200:
                                 return {
@@ -1576,15 +1577,15 @@ class CyncUserData:
                 if resp.status == 200:
                     self.user_credentials = await resp.json()
                     login_code = (
-                        bytearray.fromhex("13000000")
-                        + (10 + len(self.user_credentials["authorize"])).to_bytes(
-                            1, "big"
-                        )
-                        + bytearray.fromhex("03")
-                        + self.user_credentials["user_id"].to_bytes(4, "big")
-                        + len(self.user_credentials["authorize"]).to_bytes(2, "big")
-                        + bytearray(self.user_credentials["authorize"], "ascii")
-                        + bytearray.fromhex("0000b4")
+                            bytearray.fromhex("13000000")
+                            + (10 + len(self.user_credentials["authorize"])).to_bytes(
+                        1, "big"
+                    )
+                            + bytearray.fromhex("03")
+                            + self.user_credentials["user_id"].to_bytes(4, "big")
+                            + len(self.user_credentials["authorize"]).to_bytes(2, "big")
+                            + bytearray(self.user_credentials["authorize"], "ascii")
+                            + bytearray.fromhex("0000b4")
                     )
                     self.auth_code = [
                         int.from_bytes([byt], "big") for byt in login_code
@@ -1603,21 +1604,21 @@ class CyncUserData:
         for home in homes:
             home_info = await self._get_home_properties(home["product_id"], home["id"])
             if (
-                home_info.get("groupsArray", False)
-                and home_info.get("bulbsArray", False)
-                and len(home_info["groupsArray"]) > 0
-                and len(home_info["bulbsArray"]) > 0
+                    home_info.get("groupsArray", False)
+                    and home_info.get("bulbsArray", False)
+                    and len(home_info["groupsArray"]) > 0
+                    and len(home_info["bulbsArray"]) > 0
             ):
                 home_id = str(home["id"])
                 bulbs_array_length = (
-                    max(
-                        [
-                            ((device["deviceID"] % home["id"]) % 1000)
-                            + (int((device["deviceID"] % home["id"]) / 1000) * 256)
-                            for device in home_info["bulbsArray"]
-                        ]
-                    )
-                    + 1
+                        max(
+                            [
+                                ((device["deviceID"] % home["id"]) % 1000)
+                                + (int((device["deviceID"] % home["id"]) / 1000) * 256)
+                                for device in home_info["bulbsArray"]
+                            ]
+                        )
+                        + 1
                 )
                 home_devices[home_id] = [""] * (bulbs_array_length)
                 home_controllers[home_id] = []
@@ -1625,7 +1626,7 @@ class CyncUserData:
                     device_type = device["deviceType"]
                     device_id = str(device["deviceID"])
                     current_index = ((device["deviceID"] % home["id"]) % 1000) + (
-                        int((device["deviceID"] % home["id"]) / 1000) * 256
+                            int((device["deviceID"] % home["id"]) / 1000) * 256
                     )
                     home_devices[home_id][current_index] = device_id
                     devices[device_id] = {
@@ -1646,16 +1647,16 @@ class CyncUserData:
                         "room_name": "",
                     }
                     if (
-                        str(device_type) in Capabilities["MULTIELEMENT"]
-                        and current_index < 256
+                            str(device_type) in Capabilities["MULTIELEMENT"]
+                            and current_index < 256
                     ):
                         devices[device_id]["MULTIELEMENT"] = Capabilities[
                             "MULTIELEMENT"
                         ][str(device_type)]
                     if (
-                        devices[device_id].get("WIFICONTROL", False)
-                        and "switchID" in device
-                        and device["switchID"] > 0
+                            devices[device_id].get("WIFICONTROL", False)
+                            and "switchID" in device
+                            and device["switchID"] > 0
                     ):
                         switchID_to_homeID[str(device["switchID"])] = home_id
                         devices[device_id]["switch_controller"] = device["switchID"]
@@ -1669,8 +1670,8 @@ class CyncUserData:
                 else:
                     for room in home_info["groupsArray"]:
                         if (
-                            len(room.get("deviceIDArray", []))
-                            + len(room.get("subgroupIDArray", []))
+                                len(room.get("deviceIDArray", []))
+                                + len(room.get("subgroupIDArray", []))
                         ) > 0:
                             room_id = home_id + "-" + str(room["groupID"])
                             room_controller = home_controllers[home_id][0]
@@ -1680,7 +1681,7 @@ class CyncUserData:
                             #     room_controller = devices[home_devices[home_id][available_room_controllers[0]]]['switch_controller']
                             for roomdev_id in room.get("deviceIDArray", []):
                                 id = (roomdev_id % 1000) + (
-                                    int(roomdev_id / 1000) * 256
+                                        int(roomdev_id / 1000) * 256
                                 )
                                 _LOGGER.debug(
                                     "Flerg roomdev_id %s id %s with %s looking to %s",
@@ -1714,12 +1715,12 @@ class CyncUserData:
                                 "switches": [
                                     home_devices[home_id][
                                         (i % 1000) + (int(i / 1000) * 256)
-                                    ]
+                                        ]
                                     for i in room.get("deviceIDArray", [])
                                     if home_devices[home_id][
-                                        (i % 1000) + (int(i / 1000) * 256)
-                                    ]
-                                    in devices
+                                           (i % 1000) + (int(i / 1000) * 256)
+                                           ]
+                                       in devices
                                 ],
                                 "isSubgroup": room.get("isSubgroup", False),
                                 "subgroups": [
@@ -1729,9 +1730,9 @@ class CyncUserData:
                             }
                     for room, room_info in rooms.items():
                         if (
-                            not room_info.get("isSubgroup", False)
-                            and len(subgroups := room_info.get("subgroups", []).copy())
-                            > 0
+                                not room_info.get("isSubgroup", False)
+                                and len(subgroups := room_info.get("subgroups", []).copy())
+                                > 0
                         ):
                             for subgroup in subgroups:
                                 if rooms.get(subgroup, None):
@@ -1742,11 +1743,11 @@ class CyncUserData:
                                     )
 
         if (
-            len(rooms) == 0
-            or len(devices) == 0
-            or len(home_controllers) == 0
-            or len(home_devices) == 0
-            or len(switchID_to_homeID) == 0
+                len(rooms) == 0
+                or len(devices) == 0
+                or len(home_controllers) == 0
+                or len(home_devices) == 0
+                or len(switchID_to_homeID) == 0
         ):
             raise InvalidCyncConfiguration
         else:
@@ -1763,8 +1764,8 @@ class CyncUserData:
         headers = {"Access-Token": self.user_credentials["access_token"]}
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                API_DEVICES.format(user=self.user_credentials["user_id"]),
-                headers=headers,
+                    API_DEVICES.format(user=self.user_credentials["user_id"]),
+                    headers=headers,
             ) as resp:
                 response = await resp.json()
                 _LOGGER.debug("_get_homes() resp %s", response)
@@ -1775,8 +1776,8 @@ class CyncUserData:
         headers = {"Access-Token": self.user_credentials["access_token"]}
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                API_DEVICE_INFO.format(product_id=product_id, device_id=device_id),
-                headers=headers,
+                    API_DEVICE_INFO.format(product_id=product_id, device_id=device_id),
+                    headers=headers,
             ) as resp:
                 response = await resp.json()
                 _LOGGER.debug("_get_home_properties() resp %s", response)
